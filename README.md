@@ -1,11 +1,11 @@
 
 # SDOclust experiments
 
-Dear users (and reviewers),
+Dear reviewers,
 
-This is the version of SDOclust used in our tests and experiments as shown in the paper submission. This package is created to meet best practices of Reproducible Research (RR) through a DOI-citable source. This version is fully operative.
+This is the version of SDOclust (fully operative) used in our tests and experiments as shown in the paper submission. If (and/or after) the paper is accepted for publication, we will transform this current version into a DOI-citable package in figshare to meet best practices of Reproducible Research (RR). This repository will remain, but migth change due to potential updates.
 
-Please, note that [tables], [plots] and [cddiag] folders contain results as provided in the paper. By running the scripts below files with results will be overwritten.
+Please, note that [tables], [plots] and [cddiag] folders contain results as provided in the paper. By running the scripts below, files with results will be overwritten.
 
 ## Main python files
 - *dependencies.py*: installs required python packages
