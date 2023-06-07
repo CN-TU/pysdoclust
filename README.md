@@ -28,7 +28,11 @@ Please, note that [tables], [plots] and [cddiag] folders contain results as prov
 
 options: 'sdoclust', 'hdbscan', 'kmeans--'. The option is only to select the algorithm for plotting figures within the [plots] folder.
 
-Original data sources are from the **Clustering basic benchmark** repo of the University of Eastern Finland [https://cs.joensuu.fi/sipu/datasets/](https://cs.joensuu.fi/sipu/datasets/), appeared in the following *papers*: 
+Original data sources are from the **Clustering basic benchmark** repo of the University of Eastern Finland:
+
+[https://cs.joensuu.fi/sipu/datasets/](https://cs.joensuu.fi/sipu/datasets/)
+
+Used/presented in the following *papers*: 
 
 - Fränti, P., Virmajoki, O.: Iterative shrinking method for clustering problems. Pattern Recognition 39 (5), 761--765 (2006).
 
@@ -43,13 +47,23 @@ Original data sources are from the **Clustering basic benchmark** repo of the Un
 
 - Rezaei, M., Fränti, P.: Can the number of clusters be determined by external indices? IEEE Access 8, 89239--89257 (2020)
 
-And obtained from the scikit-learn data generation tools [https://scikit-learn.org/stable/datasets.html](https://scikit-learn.org/stable/datasets.html). *Paper*: Pedregosa, F. et al.: Scikit-learn: Machine learning in Python. Jour. of Machine Learning Research 12, 2825--2830 (2011)
+Also obtained from the scikit-learn data generation tools:
+
+[https://scikit-learn.org/stable/datasets.html](https://scikit-learn.org/stable/datasets.html) 
+
+*Paper*: Pedregosa, F. et al.: Scikit-learn: Machine learning in Python. Jour. of Machine Learning Research 12, 2825--2830 (2011)
 
 ## Multi-dim experiments
 
         $ python3 tests_Md.py 
 
-Datasets have been generated with **MDCgen**, [https://www.mathworks.com/matlabcentral/fileexchange/71871-mdcgen-v2/](https://www.mathworks.com/matlabcentral/fileexchange/71871-mdcgen-v2/), [https://github.com/CN-TU/mdcgen-matlab](https://github.com/CN-TU/mdcgen-matlab). **Paper**: Iglesias, F., Zseby, T., Ferreira, D., Zimek, A.: Mdcgen: Multidimensional dataset generator for clustering. Jour. of Classiffcation 36 (3), 599--618 (2019).
+Datasets have been generated with **MDCgen**:
+
+[https://www.mathworks.com/matlabcentral/fileexchange/71871-mdcgen-v2/](https://www.mathworks.com/matlabcentral/fileexchange/71871-mdcgen-v2/)
+
+[https://github.com/CN-TU/mdcgen-matlab](https://github.com/CN-TU/mdcgen-matlab)
+
+*Paper*: Iglesias, F., Zseby, T., Ferreira, D., Zimek, A.: Mdcgen: Multidimensional dataset generator for clustering. Jour. of Classiffcation 36 (3), 599--618 (2019).
 
 ## Real-data experiments
 
