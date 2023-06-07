@@ -1,9 +1,8 @@
 
-# SDOclust experiments
+# SDOclust Evaluation Tests
 
-Dear reviewers,
-
-This is the version of SDOclust (fully operative) used in our tests and experiments as shown in the paper submission. If (and/or after) the paper is accepted for publication, we will transform this current version into a DOI-citable package in figshare to meet best practices of Reproducible Research (RR). This repository will remain, but migth change due to potential updates.
+Tests and Experiments conducted for the paper:
+**SDOclust: Clustering with Sparse Data Observers**
 
 Please, note that [tables], [plots] and [cddiag] folders contain results as provided in the paper. By running the scripts below, files with results will be overwritten.
 
