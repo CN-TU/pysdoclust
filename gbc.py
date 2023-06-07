@@ -1,4 +1,3 @@
-from typing import Callable, Optional, Union
 from typing import Callable, Optional, Tuple, Union
 
 import numpy as np
