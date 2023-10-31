@@ -4,7 +4,13 @@
 Tests and Experiments conducted for the paper:
 **SDOclust: Clustering with Sparse Data Observers**
 
-Please, note that [tables], [plots] and [cddiag] folders contain results as provided in the paper. By running the scripts below, files with results will be overwritten.
+Please, if you use SDOclust, refer to the original work as:
+
+        F. Iglesias, T. Zseby, A. Hartl, A. Zimek. *SDOclust: Clustering Based on Sparse Data Observers*. 16th International Conference on Similarity Search and Applications, SISAP 2023. Oct 9-11, A Coruña, Spain. To be published...
+
+(SDOclust was awarded with the "Best Student Paper Finalist" in [SISAP 2023](https://www.sisap.org/2023/) !!)
+
+Note that [tables], [plots] and [cddiag] folders contain results as provided in the paper. By running the scripts below, files with results will be overwritten.
 
 ## Main python files
 - *dependencies.py*: installs required python packages
