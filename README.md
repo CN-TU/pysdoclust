@@ -6,9 +6,9 @@ Tests and Experiments conducted for the paper:
 
 Please, if you use SDOclust, refer to the original work as:
 
-> F. Iglesias, T. Zseby, A. Hartl, A. Zimek. *SDOclust: Clustering Based on Sparse Data Observers*.
-> 16th International Conference on Similarity Search and Applications, SISAP 2023. Oct 9-11,
-> A Coruña, Spain. To be published...
+> Iglesias, F., Zseby, T., Hartl, A., Zimek, A. (2023). SDOclust: Clustering with Sparse Data Observers.
+> In: Pedreira, O., Estivill-Castro, V. (eds) Similarity Search and Applications. SISAP 2023. Lecture Notes
+> in Computer Science, vol 14289. Springer, Cham. https://doi.org/10.1007/978-3-031-46994-7_16
 
 (SDOclust was awarded with the "Best Student Paper Finalist" in [SISAP 2023](https://www.sisap.org/2023/) !!)
 
