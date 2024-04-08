@@ -1,106 +1,153 @@
 
-# SDOclust Evaluation Tests
+Sparse Data Observers (**SDO**) is an unsupervised learning
+approach developed to cover the need for fast, highly interpretable and
+intuitively parameterizable anomaly detection. Its extension, **SDOclust**, 
+performs clustering while preserving the simplicity and applicability of the original approach. 
 
-Tests and Experiments conducted for the paper:
-**SDOclust: Clustering with Sparse Data Observers**
+SDO and SDOclust are powerful options when statistical estimates
+are representative and feature spaces conform distance-based analysis.
+Their main characteristics are: lightweight, intuitive, self-adjusted, noise-
+resistant, able to extract non-convex clusters (SDOclust), and built on robust 
+parameters and interpretable models. 
 
-Please, if you use SDOclust, refer to the original work as:
+Feasibility and rapid integration into real-world applications are the core goals 
+behind SDO and SDOclust, which can work on most data scenarios without parameter 
+adjustment (simply using the default parameterization).
 
-> Iglesias, F., Zseby, T., Hartl, A., Zimek, A. (2023). SDOclust: Clustering with Sparse Data Observers.
-> In: Pedreira, O., Estivill-Castro, V. (eds) Similarity Search and Applications. SISAP 2023. Lecture Notes
-> in Computer Science, vol 14289. Springer, Cham. https://doi.org/10.1007/978-3-031-46994-7_16
+## Installation and dependecies
 
-(SDOclust was awarded with the "Best Student Paper Finalist" in [SISAP 2023](https://www.sisap.org/2023/) !!)
+sdo can be installed from PyPI using
 
-Note that [tables], [plots] and [cddiag] folders contain results as provided in the paper. By running the scripts below, files with results will be overwritten.
+        pip3 install sdoclust
 
-## Main python files
-- *dependencies.py*: installs required python packages
-- *tests_2d.py*: runs 2d experiments
-- *tests_Md.py*: runs multi-dimensional experiments
-- *test_mawi.py*: runs experiments with real network traffic data from MAWI captures
-- *test_sirena.py*: runs experiments with real electricity consumption data from the Sirena project
-- *sdo.py*: sdoclust functions
-- *pamse2d.py*: script for sensitivity analysis on parameters
-- *update_test.py*: script to show SDOclust in update modus
-- *gbc.py*: graph-based clustering implementation (based on [https://github.com/dayyass/graph-based-clustering](https://github.com/dayyass/graph-based-clustering))
-- *kmeansmm.py*: k-means-- implementation (based on [https://github.com/Strizzo/kmeans--](https://github.com/Strizzo/kmeans--))
+or directly from our GitHub repository:
 
-## Install dependencies
+        pip3 install git+https://github.com/CN-TU/pysdoclust
 
-        $ python3 dependencies.py 
+sdo requires de following packages:
 
-## 2D experiments
+- numpy
+- math
+- scipy
+- sklearn
 
-        $ python3 tests_2d.py <option>
+## Examples of usage
 
-options: 'sdoclust', 'hdbscan', 'kmeans--'. The option is only to select the algorithm for plotting figures within the [plots] folder.
+## SDO
 
-Original data sources are from the **Clustering basic benchmark** repo of the University of Eastern Finland:
+        import numpy as np
+        np.random.seed(1)
 
-[https://cs.joensuu.fi/sipu/datasets/](https://cs.joensuu.fi/sipu/datasets/)
+        # Generate data
+        from sklearn import datasets
+        x, y = datasets.make_circles(n_samples=5000, factor=0.3, noise=0.1)
 
-Used/presented in the following *papers*: 
+        # SDO outlier scoring
+        import sdoclust as sdo
+        s = sdo.SDO().fit_predict(x)
 
-- Fränti, P., Virmajoki, O.: Iterative shrinking method for clustering problems. Pattern Recognition 39 (5), 761--765 (2006).
+        # plotting results
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        plt.scatter(x[:,0],x[:,1], s=10, cmap='coolwarm', c=s)
+        plt.colorbar(ticks=[np.min(s), np.max(s)])
+        plt.title('SDO outlierness scores')
+        plt.show()
 
-- Fränti, P., Virmajoki, O., Hautamäki, V.: Fast agglomerative clustering using a k-nearest neighbor graph. IEEE Trans. on Pattern Analysis and Machine Intelligence
-28 (11), 1875--1881 (2006).
+![](tests/sdo.png)
 
-- Fränti, P., Sieranoja, S.: K-means properties on six clustering benchmark datasets.  Applied Intelligence 48 (12), 4743--4759 (dec 2018)
+## SDOclust
 
-- Gionis, A., Mannila, H., Tsaparas, P.: Clustering aggregation. ACM Trans. on Know. Disc. from Data (TKDD) 1 (1), 4--es (2007)
+        import numpy as np
+        np.random.seed(1)
 
-- Kärkkäinen, I., Fränti, P.: Gradual model generator for single-pass clustering. Pattern Recognition 40 (3), 784--795 (2007)
+        # Generate data
+        from sklearn import datasets
+        x, y = datasets.make_circles(n_samples=5000, factor=0.3, noise=0.1)
 
-- Rezaei, M., Fränti, P.: Can the number of clusters be determined by external indices? IEEE Access 8, 89239--89257 (2020)
+        # SDOclust clustering
+        import sdoclust as sdo
+        p = sdo.SDOclust().fit_predict(x)
 
-Also obtained from the scikit-learn data generation tools:
+        # plotting results
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        plt.scatter(x[:,0],x[:,1], s=10, cmap='coolwarm', c=p)
+        plt.title('SDOclust clustering')
+        plt.show()
 
-[https://scikit-learn.org/stable/datasets.html](https://scikit-learn.org/stable/datasets.html) 
+![](tests/sdoclust.png)
 
-*Paper*: Pedregosa, F. et al.: Scikit-learn: Machine learning in Python. Jour. of Machine Learning Research 12, 2825--2830 (2011)
+## Application notes
 
-## Multi-dim experiments
+SDO and SDOclust obtain good performances without modifying the default parameterization in most applications, but may require adjustment in some cases: typically, when datasets have very few elements, when clusters are overlapping or in cases with many under-represented clusters. 
 
-        $ python3 tests_Md.py 
+Main SDO parameters are:
 
-Datasets have been generated with **MDCgen**:
+- *x*, which establishes the number of closest observers to evaluate each data point.
+- *qv*, which sets a robust threshold for removing *idle* observers.
+- *k*, which fixes de number of observers in the model
 
-[https://www.mathworks.com/matlabcentral/fileexchange/71871-mdcgen-v2/](https://www.mathworks.com/matlabcentral/fileexchange/71871-mdcgen-v2/)
+        mdl = sdo.SDO(x=5, qv=0.3, k=500)
 
-[https://github.com/CN-TU/mdcgen-matlab](https://github.com/CN-TU/mdcgen-matlab)
+Additionally, SDOclust also incorporates:
 
-*Paper*: Iglesias, F., Zseby, T., Ferreira, D., Zimek, A.: Mdcgen: Multidimensional dataset generator for clustering. Jour. of Classiffcation 36 (3), 599--618 (2019).
 
-## Real-data experiments
+- *zeta*, which sets a trade-off between locality and globality for cutting-off graph edges thresholds.
+- *chi*, which defines the *chi*-closest observer of any given observer to decide cutting-off graph edges thresholds.
+- *e* sets the minimum number of observers that a cluster can have.
 
-        $ python3 test_sirena.py dataReal/sirena.csv  
+        mdl = sdo.SDOclust(zeta=0.6, chi=10, e=3)
 
-        $ python3 test_mawi.py dataReal/mawi_sample.csv  
+[1] and [2] provide further explanations on SDO and SDOclust parameters.
 
-Figures are created within the [plots] folder.
+## Citation
 
-- MAWI data [https://mawi.wide.ad.jp/mawi/samplepoint-F/2022/202207311400.html](https://mawi.wide.ad.jp/mawi/samplepoint-F/2022/202207311400.html)
-*Paper*: Cho, K., Mitsuya, K., Kato, A.: Traffic data repository at the wide project. Proceedings of the Annual Conference on USENIX Annual Technical Conference. p. 51. ATEC '00, USENIX Association, USA (2000)
+If you use SDO or SDOclust in your research, please cite our publications:
 
-- Sirena data [https://upcsirena.app.dexma.com/](https://upcsirena.app.dexma.com/) (Rectorat building, electricity, from 01.01.2022 to 31.12.2022).
-*Paper*: Ruiz Martorell, G., López Plazas, F., Cuchí Burgos, A.: Sistema d'informació del consum d'energia i d'aigua de la UPC (Sirena). 1r Congrés UPC Sostenible (2007)
+### SDO
 
-## Parameter sensitivity analysis
+[1] Iglesias, F., Zseby, T., Hartl, A., Zimek, A. (2023). SDOclust: Clustering with Sparse Data Observers. In: Pedreira, O., Estivill-Castro, V. (eds) Similarity Search and Applications. SISAP 2023. Lecture Notes in Computer Science, vol 14289. Springer, Cham. https://doi.org/10.1007/978-3-031-46994-7_16
 
-        $ python3 pamse2d.py <option>
+        @INPROCEEDINGS{SDO2018,
+            author    = {F{\'e}lix Iglesias and Tanja Zseby and Alexander Hartl and Arthur Zimek},
+            booktitle={2018 IEEE International Conference on Data Mining Workshops (ICDMW)}, 
+            title={Outlier Detection Based on Low Density Models}, 
+            year={2018},
+            volume={},
+            number={},
+            pages={970-979},
+            doi={10.1109/ICDMW.2018.00140}}	
+        }
 
-Options: 'zeta', 'chi', 'chi_min', 'chi_prop', 'e', 'smooth_f', and 'hbs'. ('smooth_f' and 'hbs' correspond to enhancements under study not included in the paper or used in the experiments either).
 
-## Example of SDOclust in update modus
+### SDOclust
 
-        $ python3 update_test.py
+[2] Iglesias, F., Zseby, T., Zimek, A., "Outlier Detection Based on Low Density Models," 2018 IEEE International Conference on Data Mining Workshops (ICDMW), Singapore, 2018, pp. 970-979, doi: 10.1109/ICDMW.2018.00140. keywords: {Observers;Anomaly detection;Clustering algorithms;Data models;Statistical analysis;Decision making;Complexity theory;outlier analysis;eager learning;machine learning model},
 
-## Generate Critical diagrams
 
-From the [cddiag] folder:
+        @InProceedings{SDOclust2023,
+            title     = {SDOclust: Clustering with Sparse Data Observers},
+            author    = {F{\'e}lix Iglesias and Tanja Zseby and Arthur Zimek},
+            editor    = {{\'O}scar Pedreira and Vladimir Estivill-Castro",
+            booktitle = {Similarity Search and Applications},
+            year      = {2023},
+            publisher = {Springer Nature Switzerland},
+            address   = {Cham},
+            pages     = {185--199},
+            doi       = {https://doi.org/10.1007/978-3-031-46994-7\_16}
+        }
 
-        $ python3 call_diagram.py ../tables/table2d.csv ../tables/tableMd.csv 
 
-Critical diagrams for Silhouette and ARI indices will be created in the same folder (.png files).
+## Others
+
+- Experiments conducted in [2] are available to download in: 
+Iglesias Vázquez, F.: *SDOclust Evaluation Tests (Jun 2023)*. [https://doi.org/10.48436/3q7jp-mg161](https://doi.org/10.48436/3q7jp-mg161)
+
+- The observers-partitioning task in SDOclust is based on the Graph-Based clustering work of Dani El-Ayyass: [https://github.com/dayyass/graph-based-clustering](https://github.com/dayyass/graph-based-clustering)
+
+- An alternative implementation of SDO (only for outlier detection) by Alexander Hartl is in: [https://github.com/CN-TU/pysdo](https://github.com/CN-TU/pysdo)
+
+- A version of SDO for streaming data (SDOstream) is included in the dSalmon package: [https://pypi.org/project/dSalmon/](https://pypi.org/project/dSalmon/)
+
+- Outlier thresholding (i.e., binary/crips labels for outlier/inlier) can be performed externally with multiple algorithms. The pythresh package offers multiple options: [https://github.com/KulikDM/pythresh](https://github.com/KulikDM/pythresh)
