@@ -111,6 +111,8 @@ class SDO:
 		    error = 0.1*np.std(Xp);
 		    self.k = sample_size( m, sigma, error )
 		    k = self.k
+	    else:
+		    k = self.k
 
 	    chunksize = self.chunksize
 	    if chunksize is None:
@@ -220,6 +222,9 @@ class SDOclust:
         for i in ind:
             if count[i] <= self.e:
                 toremove[ol==i]=1
+
+        if np.sum(toremove) == len(O):
+            toremove = np.zeros(len(O))
 
         O = O[toremove==0,:]
         ol = ol[toremove==0] 
