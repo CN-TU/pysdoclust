@@ -107,7 +107,7 @@ If you use SDO or SDOclust in your research, please cite our publications:
 
 ### SDO
 
-[2] Iglesias, F., Zseby, T., Zimek, A., "Outlier Detection Based on Low Density Models," 2018 IEEE International Conference on Data Mining Workshops (ICDMW), Singapore, 2018, pp. 970-979, doi: 10.1109/ICDMW.2018.00140. keywords: {Observers;Anomaly detection;Clustering algorithms;Data models;Statistical analysis;Decision making;Complexity theory;outlier analysis;eager learning;machine learning model},
+[2] Iglesias, F., Zseby, T., Zimek, A., "Outlier Detection Based on Low Density Models," 2018 IEEE International Conference on Data Mining Workshops (ICDMW), Singapore, 2018, pp. 970-979, doi: 10.1109/ICDMW.2018.00140.,
 
         @INPROCEEDINGS{SDO2018,
             author    = {F{\'e}lix Iglesias and Tanja Zseby and Alexander Hartl and Arthur Zimek},
