@@ -107,7 +107,7 @@ If you use SDO or SDOclust in your research, please cite our publications:
 
 ### SDO
 
-[1] Iglesias, F., Zseby, T., Hartl, A., Zimek, A. (2023). SDOclust: Clustering with Sparse Data Observers. In: Pedreira, O., Estivill-Castro, V. (eds) Similarity Search and Applications. SISAP 2023. Lecture Notes in Computer Science, vol 14289. Springer, Cham. https://doi.org/10.1007/978-3-031-46994-7_16
+[2] Iglesias, F., Zseby, T., Zimek, A., "Outlier Detection Based on Low Density Models," 2018 IEEE International Conference on Data Mining Workshops (ICDMW), Singapore, 2018, pp. 970-979, doi: 10.1109/ICDMW.2018.00140. keywords: {Observers;Anomaly detection;Clustering algorithms;Data models;Statistical analysis;Decision making;Complexity theory;outlier analysis;eager learning;machine learning model},
 
         @INPROCEEDINGS{SDO2018,
             author    = {F{\'e}lix Iglesias and Tanja Zseby and Alexander Hartl and Arthur Zimek},
@@ -120,11 +120,9 @@ If you use SDO or SDOclust in your research, please cite our publications:
             doi={10.1109/ICDMW.2018.00140}}	
         }
 
-
 ### SDOclust
 
-[2] Iglesias, F., Zseby, T., Zimek, A., "Outlier Detection Based on Low Density Models," 2018 IEEE International Conference on Data Mining Workshops (ICDMW), Singapore, 2018, pp. 970-979, doi: 10.1109/ICDMW.2018.00140. keywords: {Observers;Anomaly detection;Clustering algorithms;Data models;Statistical analysis;Decision making;Complexity theory;outlier analysis;eager learning;machine learning model},
-
+[1] Iglesias, F., Zseby, T., Hartl, A., Zimek, A. (2023). SDOclust: Clustering with Sparse Data Observers. In: Pedreira, O., Estivill-Castro, V. (eds) Similarity Search and Applications. SISAP 2023. Lecture Notes in Computer Science, vol 14289. Springer, Cham. https://doi.org/10.1007/978-3-031-46994-7_16
 
         @InProceedings{SDOclust2023,
             title     = {SDOclust: Clustering with Sparse Data Observers},
