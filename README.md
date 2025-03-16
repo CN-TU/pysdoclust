@@ -31,6 +31,17 @@ sdo requires de following packages:
 - scipy
 - sklearn
 
+By default, SDO uses distance.cdist (from the scipy package) for calculating point distances and distance matrices (no-method or method="brute"). Instead, you can use approximate neighbor search with:
+
+- [FAISS](https://pypi.org/project/faiss-cpu/)
+- [pyNNdescent](https://pypi.org/project/pynndescent/)
+  
+Then you will need to install these packages when calling SDO or SDOclust with method="faiss" or method="pynndescent", e.g.:
+
+        import sdoclust as sdo
+        mdl = sdo.SDO(method='faiss')
+
+
 ## Examples of usage
 
 ## SDO
@@ -100,6 +111,7 @@ Additionally, SDOclust also incorporates:
         mdl = sdo.SDOclust(zeta=0.6, chi=10, e=3)
 
 [1] and [2] provide further explanations on SDO and SDOclust parameters.
+Particularly for SDOclust, remember that default parameters tend to find the fundamental partitions, i.e. a low number of clusters. If your scenario contains many clusters, or you detect underclustering, try, for example, to increase *k* and/or reduce *chi*. 
 
 ## Citation
 
