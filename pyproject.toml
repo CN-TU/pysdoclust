@@ -4,12 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sdoclust"
-version = "0.1"
+version = "0.4"
 authors = [
   { name="Félix Iglesias Vázquez", email="felix.iglesias@tuwien.ac.at" },
 ]
 description = "outlier detection and clustering based on sparse data observers"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3"
 classifiers = [
     "Programming Language :: Python :: 3",
