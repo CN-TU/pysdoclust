@@ -4,7 +4,7 @@ SDO (Sparse Data Observers)
 Python library for the SDO (outlier scoring) and SDOclust (clustering) algorithms.
 """
 
-__version__ = "0.4"
+__version__ = "0.5"
 __author__ = 'Félix Iglesias Vázquez'
 __credits__ = 'TU Wien, Inst. of Telecomm., CN Group'
 
@@ -148,7 +148,7 @@ class SDO:
         P = np.zeros(k)
         
         if self.method == "faiss":
-            self.index = self._faiss.IndexFlatL2(n)
+            self.index = self._faiss.IndexFlatL2(O.shape[1])
             self.index.add(O.astype(np.float32))
         elif self.method == "pynndescent":
             self.index = self._pynndescent.NNDescent(O.astype(np.float32), n_neighbors=self.x, metric="euclidean")
@@ -170,6 +170,13 @@ class SDO:
         
         q = np.quantile(P, self.qv) if self.q is None else self.q
         self.O = O[P >= q]
+        
+        if self.method == "faiss":
+            self.index = self._faiss.IndexFlatL2(self.O.shape[1])
+            self.index.add(self.O.astype(np.float32))
+        elif self.method == "pynndescent":
+            self.index = self._pynndescent.NNDescent(self.O.astype(np.float32), n_neighbors=self.x, metric="euclidean")
+            
         return self
 
     def get_observers(self):
@@ -258,10 +265,10 @@ class SDOclust:
         self.ol = self.ol[~toremove]
         
         if self.method == "faiss":
-            self.index = self._faiss.IndexFlatL2(n)
-            self.index.add(O.astype(np.float32))
+            self.index = self._faiss.IndexFlatL2(self.O.shape[1])
+            self.index.add(self.O.astype(np.float32))
         elif self.method == "pynndescent":
-            self.index = self._pynndescent.NNDescent(O.astype(np.float32), n_neighbors=self.x, metric="euclidean")
+            self.index = self._pynndescent.NNDescent(self.O.astype(np.float32), n_neighbors=self.x, metric="euclidean")
 
         # Relabel clusters to be consecutive
         unique_labels = np.unique(self.ol)
