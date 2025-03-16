@@ -18,11 +18,11 @@ adjustment (simply using the default parameterization).
 
 sdo can be installed from PyPI using
 
-        pip3 install sdoclust
+        pip install sdoclust
 
 or directly from our GitHub repository:
 
-        pip3 install git+https://github.com/CN-TU/pysdoclust
+        pip install git+https://github.com/CN-TU/pysdoclust
 
 sdo requires de following packages:
 
@@ -31,17 +31,17 @@ sdo requires de following packages:
 - scipy
 - sklearn
 
-By default, SDO uses distance.cdist (from the scipy package) for calculating point distances and distance matrices (no-method or method="brute"). Instead, you can use approximate neighbor search with:
+By default, SDO uses distance.cdist (from the scipy package) for calculating point distances and distance matrices (default method or method="brute"). Instead, you can use approximate neighbor search with:
 
 - [FAISS](https://pypi.org/project/faiss-cpu/)
 - [pyNNdescent](https://pypi.org/project/pynndescent/)
   
-Then you will need to install these packages if calling SDO or SDOclust with method="faiss" or method="pynndescent", e.g.:
+In such a case you will need to install the respective packages when calling SDO or SDOclust with method="faiss" or method="pynndescent", e.g.:
 
         import sdoclust as sdo
         mdl = sdo.SDO(method='faiss')
 
-However, note that the dominant factor in searching is the set of observers *O*, which is typically within a few hundred to a few thousand data points. This means that the default "brute" method is going to obtain equivalent runtimes to "faiss" or "pynndescent" and, in principle, better accuracy. Therefore, these alternatives are suitable when setting pretty large values of *k* (which is usually not necessary).
+However, note that, rather than the dataset *X*, the dominant factor in searching is the set of observers *O*, which is typically within a few hundred to a few thousand data points. This means that the default "brute" method is going to obtain better accuracy with equivalent runtimes to "faiss" or "pynndescent". Therefore, these alternatives are suitable when setting pretty large values of *k*. For default or low, *k* use the default approach.
 
 ## Examples of usage
 
@@ -112,7 +112,7 @@ Additionally, SDOclust also incorporates:
         mdl = sdo.SDOclust(zeta=0.6, chi=10, e=3)
 
 [1] and [2] provide further explanations on SDO and SDOclust parameters.
-Particularly for SDOclust, remember that default parameters tend to find the fundamental partitions, i.e. a low number of clusters. If your scenario contains many clusters, or you detect underclustering, try, for example, to increase *k* and/or reduce *chi*. 
+SDOclust with default parameters tend to find fundamental partitions, i.e. a low number of clusters. If your scenario contains many clusters, or you detect underclustering, try, for example, by increasing *k* and/or reducing *chi*. 
 
 ## Citation
 
