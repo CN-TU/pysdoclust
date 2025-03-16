@@ -41,7 +41,7 @@ Then you will need to install these packages if calling SDO or SDOclust with met
         import sdoclust as sdo
         mdl = sdo.SDO(method='faiss')
 
-However, note that the dominant factor in searching is the set of observers *O*, which is typically within a few hundred to a few thousand data points. This means that the default "brute" method is going to obtain equivalent runtimes to "faiss" or "pynndescent" and, in principle, better accuracy. Therefore, these alternatives are suitable when setting larger values of *k*.
+However, note that the dominant factor in searching is the set of observers *O*, which is typically within a few hundred to a few thousand data points. This means that the default "brute" method is going to obtain equivalent runtimes to "faiss" or "pynndescent" and, in principle, better accuracy. Therefore, these alternatives are suitable when setting pretty large values of *k* (which is usually not necessary).
 
 ## Examples of usage
 
