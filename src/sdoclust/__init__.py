@@ -186,10 +186,15 @@ class SDO:
         self.O = O
         return self
         
-    def predict(self, X):
+    def predict(self, X, x=None, O=None):
         m, n = X.shape
         chunksize = self.chunksize or m
-        O = self.O
+	    
+        if O is None:
+            O = self.O
+        if x is None:
+            x = self.x
+
         y = np.zeros(m)
         
         for i in range(0, m, chunksize):
@@ -198,17 +203,23 @@ class SDO:
             if self.method == "brute":
                 dist = distance.cdist(X_chunk, O)
             elif self.method == "faiss":
-                dist, _ = self.index.search(X_chunk.astype(np.float32), self.x)
+                dist, _ = self.index.search(X_chunk.astype(np.float32), x)
             elif self.method == "pynndescent":
-                _, dist = self.index.query(X_chunk, k=self.x)
+                _, dist = self.index.query(X_chunk, k=x)
             
-            y[i:(i + chunksize)] = np.median(np.sort(dist, axis=1)[:, :self.x], axis=1)
+            y[i:(i + chunksize)] = np.median(np.sort(dist, axis=1)[:, :x], axis=1)
         
         return y
 
-    def fit_predict(self, X):
+    def fit_predict(self, X, x=None, O=None):
+	    
+        if O is None:
+            O = self.O
+        if x is None:
+            x = self.x
+
         self.fit(X)
-        return self.predict(X)
+        return self.predict(X, x, O)
         
 
 class SDOclust:
