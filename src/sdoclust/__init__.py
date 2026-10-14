@@ -4,7 +4,7 @@ SDO (Sparse Data Observers)
 Python library for the SDO (outlier scoring) and SDOclust (clustering) algorithms.
 """
 
-__version__ = "0.5"
+__version__ = "0.6"
 __author__ = 'Félix Iglesias Vázquez'
 __credits__ = 'TU Wien, Inst. of Telecomm., CN Group'
 
@@ -15,10 +15,12 @@ import scipy.spatial.distance as distance
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sdoclust.clust import ConnectedComponentsClustering
+from scipy.optimize import linear_sum_assignment
 
 def extend_labels(X, O, l, knn=5, method="brute", index=None, chunksize=None):
     m, n = X.shape
-    cl = len(np.unique(l))
+    #cl = len(np.unique(l))
+    cl = int(l.max()) + 1
 
     if chunksize is None:
         chunksize = m
@@ -55,6 +57,32 @@ def extend_labels(X, O, l, knn=5, method="brute", index=None, chunksize=None):
     return C / knn, np.argmax(C, axis=1)    
 
 
+
+def harmonize_labels(old_l, new_l):
+    mask = old_l >= 0
+    K = new_l.max() + 1
+    mapping = np.full(K, -1, dtype=int)
+
+    if mask.any():
+        old_ids = np.unique(old_l[mask])
+        C = np.zeros((K, len(old_ids)), dtype=np.int64)
+        np.add.at( C, (new_l[mask], np.searchsorted(old_ids, old_l[mask])), 1 )
+        rows, cols = linear_sum_assignment(C, maximize=True)
+        valid = C[rows, cols] > 0
+        mapping[rows[valid]] = old_ids[cols[valid]]
+        available = np.setdiff1d( old_ids, mapping[mapping >= 0] )
+    else:
+        available = np.array([], dtype=int)
+
+    unmatched = np.flatnonzero(mapping == -1)
+    n_reuse = min(len(unmatched), len(available))
+    mapping[unmatched[:n_reuse]] = available[:n_reuse]
+    remaining = unmatched[n_reuse:]
+    next_label = old_l.max() + 1 if old_l.size else 0
+    mapping[remaining] = np.arange( next_label, next_label + len(remaining) )
+
+    return mapping[new_l]    
+    
 def graph_clust(x, zeta, chi, chi_min, chi_prop):
     model = ConnectedComponentsClustering(zeta, chi, chi_min, chi_prop, metric="euclidean", n_jobs=-1)
     l = model.fit_predict(x)
@@ -251,6 +279,13 @@ class SDOclust:
         self.kmp = None
         self.sdo = None
 
+    def _reindex(self):
+        if self.method == "faiss":
+            self.index = self._faiss.IndexFlatL2(self.O.shape[1])
+            self.index.add(self.O.astype(np.float32))
+        elif self.method == "pynndescent":
+            self.index = self._pynndescent.NNDescent(self.O.astype(np.float32), n_neighbors=self.x, metric="euclidean")
+            
     def fit(self, X):
         self.sdo = SDO(self.x, self.qv, self.hbs, self.smooth, self.smooth_f, 
                        self.rseed, self.k, self.q, self.chunksize, method=self.method)  
@@ -275,11 +310,7 @@ class SDOclust:
         self.O = self.O[~toremove]
         self.ol = self.ol[~toremove]
         
-        if self.method == "faiss":
-            self.index = self._faiss.IndexFlatL2(self.O.shape[1])
-            self.index.add(self.O.astype(np.float32))
-        elif self.method == "pynndescent":
-            self.index = self._pynndescent.NNDescent(self.O.astype(np.float32), n_neighbors=self.x, metric="euclidean")
+        self._reindex()
 
         # Relabel clusters to be consecutive
         unique_labels = np.unique(self.ol)
@@ -306,18 +337,18 @@ class SDOclust:
         x = x if x is not None else self.x
         return self.sdo.predict(X, x)
 
-    def update(self, X):
+    def update(self, X, keep_old=0.6):
         k = self.O.shape[0]
         m, _ = X.shape
-        k_new_obs = max(1, int(m * self.kmp))
+        k_new_obs = min(max(1, int(m * self.kmp)), max(1, int(k * (1 - keep_old))))
         k_excess = k + k_new_obs
-
-        index = np.random.permutation(m)
+    
+        index = np.random.RandomState(self.rseed).permutation(m)   
         newO = X[index[:k_new_obs]]
         O = np.vstack((self.O, newO))
+        old_l = np.concatenate([self.ol, -np.ones(k_new_obs, dtype=int)])  
 
         P = np.zeros(k_excess)
-
         chunksize = self.chunksize or m
         for i in range(0, m, chunksize):
             dist = distance.cdist(X[i:i+chunksize], O)
@@ -325,16 +356,17 @@ class SDOclust:
             closest = dist_sorted[:, :self.x].flatten()
             P += np.count_nonzero(closest[:, np.newaxis] == np.arange(k_excess), axis=0)
 
-        # Remove least-represented observers
+        P[k:] = np.inf                                   
         toremove = np.argsort(P)[:k_new_obs]
         O = np.delete(O, toremove, axis=0)
+        old_l = np.delete(old_l, toremove)
 
         self.O = O
-        self.ol = graph_clust(O, self.zeta, self.chi, self.chi_min, self.chi_prop)
-
+        self.ol = harmonize_labels(old_l, graph_clust(O, self.zeta, self.chi, self.chi_min, self.chi_prop))
+        self._reindex()                                   
+        self.sdo.O, self.sdo.index = self.O, self.index   
         return self
-
+                
     def update_predict(self, X, return_membership=False, xc=None):
         self.update(X)
         return self.predict(X, return_membership=return_membership, xc=xc)
-
