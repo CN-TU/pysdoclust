@@ -20,7 +20,6 @@ def check_adjacency_matrix(matrix):
     return True
     
 def distances_to_adjacency_matrix(distances, threshold):
-    N = distances.shape[0]
     adjacency_matrix = (distances < threshold[:, None]).astype(np.uint8)
     np.fill_diagonal(adjacency_matrix, 0) 
     return np.minimum(adjacency_matrix, adjacency_matrix.T)  
