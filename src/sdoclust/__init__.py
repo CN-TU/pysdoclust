@@ -4,7 +4,7 @@ SDO (Sparse Data Observers)
 Python library for the SDO (outlier scoring) and SDOclust (clustering) algorithms.
 """
 
-__version__ = "0.6.2"
+__version__ = "0.6.3"
 __author__ = 'Félix Iglesias Vázquez'
 __credits__ = 'TU Wien, Inst. of Telecomm., CN Group'
 
@@ -159,7 +159,7 @@ class SDO:
         
         if self.k is None:
             sigma = estimate_sigma_pca(X)
-            error = 0.05 / np.sqrt(np.log10(m))
+            error = 0.15 / np.sqrt(np.log10(m))
             k = sample_size(m, sigma, error)
         else:
             k = self.k
