@@ -163,7 +163,7 @@ class SDO:
         
         if self.k is None:
             sigma = estimate_sigma_pca(X)
-            error = 0.02
+            error = 0.1
             self.k = sample_size(m, sigma, error)
             k = self.k
         else:
