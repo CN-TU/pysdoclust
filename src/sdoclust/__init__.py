@@ -4,7 +4,7 @@ SDO (Sparse Data Observers)
 Python library for the SDO (outlier scoring) and SDOclust (clustering) algorithms.
 """
 
-__version__ = "0.6"
+__version__ = "0.6.2"
 __author__ = 'Félix Iglesias Vázquez'
 __credits__ = 'TU Wien, Inst. of Telecomm., CN Group'
 
@@ -17,45 +17,38 @@ from sklearn.decomposition import PCA
 from sdoclust.clust import ConnectedComponentsClustering
 from scipy.optimize import linear_sum_assignment
 
-def extend_labels(X, O, l, knn=5, method="brute", index=None, chunksize=None):
-    m, n = X.shape
-    #cl = len(np.unique(l))
+def extend_labels(X, O, l, knn=5, method="brute", index=None, chunksize=None, return_membership=True):
+    m = X.shape[0]
     cl = int(l.max()) + 1
+    chunksize = chunksize or default_chunksize(m, len(O))
 
-    if chunksize is None:
-        chunksize = m
+    onehot = np.eye(cl, dtype=np.float32)[l]         
+    labels = np.empty(m, dtype=np.int64)
+    C = np.empty((m, cl), dtype=np.float32) if return_membership else None
 
-    C = np.zeros((m, cl))
+    for i in range(0, m, chunksize):
+        Xc = X[i:i + chunksize]
 
-    if method == "brute":
-        for i in range(0, m, chunksize):
-            dist = distance.cdist(X[i:i+chunksize], O)
-            closest = np.argpartition(dist, knn, axis=1)[:, :knn]
-            lknn = l[closest]
-            for j in range(cl):
-                C[i:i+chunksize, j] = np.sum(lknn == j, axis=1)
+        if method == "brute":
+            dist = distance.cdist(Xc, O)
+            closest = np.argpartition(dist, knn - 1, axis=1)[:, :knn]
+        elif method == "faiss":
+            _, closest = index.search(Xc.astype(np.float32), knn)
+        elif method == "pynndescent":
+            closest, _ = index.query(Xc, k=knn)
+        else:
+            raise ValueError(f"Unknown method '{method}'. Options: 'brute', 'faiss', 'pynndescent'.")
 
-    elif method == "faiss":
-        if index is None:
-            raise ValueError("FAISS index must be provided.")
-        for i in range(0, m, chunksize):
-            _, closest = index.search(X[i:i+chunksize].astype(np.float32), knn)
-            lknn = l[closest]
-            for j in range(cl):
-                C[i:i+chunksize, j] = np.sum(lknn == j, axis=1)
+        counts = np.zeros((len(Xc), cl), dtype=np.float32)
+        for j in range(knn):                           # suma las etiquetas de cada vecino
+            counts += onehot[closest[:, j]]
 
-    elif method == "pynndescent":
-        if index is None:
-            raise ValueError("PyNNDescent index must be provided.")
-        closest, _ = index.query(X, k=knn)
-        for j in range(cl):
-            C[:, j] = np.sum(l[closest] == j, axis=1)
+        labels[i:i + chunksize] = np.argmax(counts, axis=1)
+        
+        if return_membership:
+            C[i:i + chunksize] = counts / knn
 
-    else:
-        raise ValueError(f"Unknown method '{method}'. Options available: 'brute', 'faiss', or 'pynndescent'.")
-
-    return C / knn, np.argmax(C, axis=1)    
-
+    return C, labels
 
 
 def harmonize_labels(old_l, new_l):
@@ -135,6 +128,9 @@ def estimate_sigma_pca(X, max_samples=200000, random_state=0):
     Xp = PCA(n_components=1, random_state=random_state).fit_transform(Xs)
     return np.sqrt(np.var(Xp) / d)
 
+def default_chunksize(m, k, max_pairs=20000000):
+    return max(1, min(m, max_pairs // max(k, 1)))
+    
 class SDO:
     def __init__(self, x=5, qv=0.3, hbs=False, smooth=False, smooth_f=0.25, rseed=0, k=None, q=None, chunksize=None, method="brute"):
         self.x = x
@@ -169,10 +165,10 @@ class SDO:
         else:
             k = self.k
 
-        chunksize = self.chunksize or m
         np.random.seed(self.rseed)
         index = np.random.permutation(m)
         O = X[index[:k]]
+        chunksize = self.chunksize or default_chunksize(m, O.shape[0])
         
         if self.hbs:
             O, k = hbdiscret(O)
@@ -192,7 +188,7 @@ class SDO:
             
             if self.method == "brute":
                 dist = distance.cdist(X_chunk, O)
-                closest = np.argsort(dist, axis=1)[:, :self.x].flatten()
+                closest = np.argpartition(dist, self.x, axis=1)[:, :self.x].ravel()
             elif self.method == "faiss":
                 _, closest = self.index.search(X_chunk.astype(np.float32), self.x)
                 closest = closest.flatten()
@@ -200,7 +196,7 @@ class SDO:
                 closest, _ = self.index.query(X_chunk, k=self.x)
                 closest = closest.flatten()
             
-            P += np.count_nonzero(closest[:, np.newaxis] == np.arange(k), 0)
+            P += np.bincount(closest, minlength=k)  
         
         q = np.quantile(P, self.qv) if self.q is None else self.q
         self.O = O[P >= q]
@@ -222,13 +218,14 @@ class SDO:
         
     def predict(self, X, x=None, O=None):
         m, n = X.shape
-        chunksize = self.chunksize or m
 	    
         if O is None:
             O = self.O
         if x is None:
             x = self.x
-
+            
+        chunksize = self.chunksize or default_chunksize(m, O.shape[0] if O is None else len(O))
+        
         y = np.zeros(m)
         
         for i in range(0, m, chunksize):
@@ -329,7 +326,7 @@ class SDOclust:
 
     def predict(self, X, return_membership=False, xc=None):
         xc = xc if xc is not None else self.xc
-        m, c = extend_labels(X, self.O, self.ol, xc, self.method, self.index, self.chunksize)
+        m, c = extend_labels(X, self.O, self.ol, xc, self.method, self.index, self.chunksize, return_membership=return_membership)
         return (c, m) if return_membership else c
 
     def fit_predict(self, X, return_membership=False, xc=None):
@@ -355,7 +352,7 @@ class SDOclust:
         old_l = np.concatenate([self.ol, -np.ones(k_new_obs, dtype=int)])  
 
         P = np.zeros(k_excess)
-        chunksize = self.chunksize or m
+        chunksize = self.chunksize or default_chunksize(m, O.shape[0])
         for i in range(0, m, chunksize):
             dist = distance.cdist(X[i:i+chunksize], O)
             dist_sorted = np.argsort(dist, axis=1)
