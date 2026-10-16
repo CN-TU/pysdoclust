@@ -132,7 +132,7 @@ def estimate_sigma_pca(X, max_samples=200000, random_state=0):
     idx = rng.choice(m, size=n_sample, replace=False)
     Xs = X[idx]
     Xs = StandardScaler().fit_transform(Xs)
-    Xp = PCA(n_components=2, random_state=random_state).fit_transform(Xs)
+    Xp = PCA(n_components=1, random_state=random_state).fit_transform(Xs)
     return np.sqrt(np.var(Xp) / d)
 
 class SDO:
@@ -162,9 +162,9 @@ class SDO:
         m, n = X.shape
         
         if self.k is None:
-    		sigma = estimate_sigma_pca(X)
-    		error = 0.02
-			self.k = sample_size(m, sigma, error)
+            sigma = estimate_sigma_pca(X)
+            error = 0.02
+            self.k = sample_size(m, sigma, error)
             k = self.k
         else:
             k = self.k
