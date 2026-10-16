@@ -124,7 +124,16 @@ def smoothing (O, x, f):
     for i in range(k):
         O[i,:] =  O[i,:] + np.sum(Ohat[closest[i]]*inc[i][:,None], axis=0)
     return O
-	
+
+def estimate_sigma_pca(X, max_samples=200000, random_state=0):
+    m, d = X.shape
+    n_sample = min(m, max_samples)
+    rng = np.random.default_rng(random_state)
+    idx = rng.choice(m, size=n_sample, replace=False)
+    Xs = X[idx]
+    Xs = StandardScaler().fit_transform(Xs)
+    Xp = PCA(n_components=2, random_state=random_state).fit_transform(Xs)
+    return np.sqrt(np.var(Xp) / d)
 
 class SDO:
     def __init__(self, x=5, qv=0.3, hbs=False, smooth=False, smooth_f=0.25, rseed=0, k=None, q=None, chunksize=None, method="brute"):
@@ -153,12 +162,9 @@ class SDO:
         m, n = X.shape
         
         if self.k is None:
-            Xt = StandardScaler().fit_transform(X)
-            pca = PCA(n_components=2)
-            Xp = pca.fit_transform(Xt)
-            sigma = max(np.std(Xp), 1)
-            error = 0.1 * np.std(Xp)
-            self.k = sample_size(m, sigma, error)
+    		sigma = estimate_sigma_pca(X)
+    		error = 0.02
+			self.k = sample_size(m, sigma, error)
             k = self.k
         else:
             k = self.k
