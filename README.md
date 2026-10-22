@@ -114,6 +114,10 @@ Additionally, SDOclust also incorporates:
 [1] and [2] provide further explanations on SDO and SDOclust parameters.
 SDOclust with default parameters tend to find fundamental partitions, i.e. a low number of clusters. If your scenario contains many clusters, or you detect underclustering, try, for example, by increasing *k* and/or reducing *chi*. 
 
+### New!!
+
+SDO v0.6.3 uses a new method for calculating the default size of the observer model, which depends on variance, cardinality, and dimensionality. Models may now be larger than in previous versions, particularly when dimensionality is low, which affects both time and memory costs. If greater efficiency is desired, we recommend setting the model between *k=300* and *k=500*.
+
 ## Citation
 
 If you use SDO or SDOclust in your research, please cite our publications:
